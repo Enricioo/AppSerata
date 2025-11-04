@@ -1,4 +1,4 @@
-package com.example.appserata.model;
+package com.example.appserata;
 
 public class SegmentoRuota {
 
@@ -6,24 +6,25 @@ public class SegmentoRuota {
     private final int moltiplicatore;
     private final int probabilita;
 
-    public SegmentoRuota(String nome, int moltiplicatore, int probabilita) {
+    public SegmentoRuota(String nome, int moltiplicatore, int probabilita, boolean b) {
         this.nome = nome;
         this.moltiplicatore = moltiplicatore;
         this.probabilita = probabilita;
     }
 
     public String getNome() {
+
         return nome;
     }
 
     public int getMoltiplicatore() {
+
         return moltiplicatore;
     }
 
-    public int getProbabilita() {
+    public int getPesoProbabilistico() {
         return probabilita;
     }
-    
 }
 
 
