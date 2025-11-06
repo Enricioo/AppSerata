@@ -1,9 +1,9 @@
 package com.example.appserata.service;
 
 
-import com.example.appserata.moltiplicatoreSlot;
+import com.example.appserata.MoltiplicatoreSlot;
 import com.example.appserata.SegmentoRuota;
-import com.example.appserata.risultatoGiro;
+import com.example.appserata.RisultatoGiro;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,19 +11,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ruotaService {
+@Service
+public class RuotaService {
 
-    @Service
-    public class ServizioGioco {
+
 
         private final List<SegmentoRuota> ruota;
         private final int pesoTotaleRuota;
-        private final List<moltiplicatoreSlot> topSlotMoltiplicatori;
+        private final List<MoltiplicatoreSlot> topSlotMoltiplicatori;
         private final int pesoTotaleTopSlot;
         private final List<SegmentoRuota> topSlotSegmenti; // Solo numeri e bonus
 
         @Autowired
-        public ServizioGioco() {
+        public RuotaService() {
             // --- INIZIALIZZAZIONE RUOTA (54 Segmenti totali) ---
             this.ruota = new ArrayList<>();
             ruota.add(new SegmentoRuota("Numero 1", 1, 21, false));
@@ -41,13 +41,13 @@ public class ruotaService {
 
             // --- INIZIALIZZAZIONE SLOT MOLTIPLICATORI ---
             this.topSlotMoltiplicatori = List.of(
-                    new moltiplicatoreSlot(2, 50),
-                    new moltiplicatoreSlot(3, 30),
-                    new moltiplicatoreSlot(5, 15),
-                    new moltiplicatoreSlot(10, 5) // Raro
+                    new MoltiplicatoreSlot(2, 50),
+                    new MoltiplicatoreSlot(3, 30),
+                    new MoltiplicatoreSlot(5, 15),
+                    new MoltiplicatoreSlot(10, 5) // Raro
             );
             this.pesoTotaleTopSlot = topSlotMoltiplicatori.stream()
-                    .mapToInt(moltiplicatoreSlot::getPesoProbabilistico)
+                    .mapToInt(MoltiplicatoreSlot::getPesoProbabilistico)
                     .sum(); // Totale: 100
 
             // --- INIZIALIZZAZIONE TOP SLOT SEGMENTI (Solo quelli possibili) ---
@@ -69,10 +69,10 @@ public class ruotaService {
         }
 
         // --- IL METODO PRINCIPALE DEL GIOCO ---
-        public risultatoGiro avviaGiro() {
+        public RisultatoGiro avviaGiro() {
 
             // 1. Estrazione del Bonus (Segmento e Moltiplicatore)
-            moltiplicatoreSlot moltiplicatoreTS = estraiPonderato(topSlotMoltiplicatori, pesoTotaleTopSlot, moltiplicatoreSlot::getPesoProbabilistico);
+            MoltiplicatoreSlot moltiplicatoreTS = estraiPonderato(topSlotMoltiplicatori, pesoTotaleTopSlot, MoltiplicatoreSlot::getPesoProbabilistico);
             SegmentoRuota segmentoTS = estraiPonderato(topSlotSegmenti, pesoTotaleRuota, SegmentoRuota::getPesoProbabilistico);
 
             // 2. Rotazione della Ruota
@@ -83,7 +83,7 @@ public class ruotaService {
             boolean topSlotAttivato = false;
             String messaggioBase = "Ruota: " + risultatoRuota.getNome();
 
-            if (risultatoRuota.getNome().equals(segmentoTS.getNome())) {
+            if (risultatoRuota.getNome().equalsIgnoreCase(segmentoTS.getNome())) {
                 moltiplicatoreFinale = risultatoRuota.getMoltiplicatore() > 0 ?
                         risultatoRuota.getMoltiplicatore() * moltiplicatoreTS.getValore() :
                         moltiplicatoreTS.getValore(); // Bonus ottiene solo il moltiplicatore
@@ -91,12 +91,12 @@ public class ruotaService {
                 messaggioBase = messaggioBase + " + Top Slot x" + moltiplicatoreTS.getValore() + "!";
             }
 
-            return new risultatoGiro(
+            return new RisultatoGiro(
                     messaggioBase,
                     risultatoRuota.getNome(),
                     moltiplicatoreFinale,
                     topSlotAttivato
             );
         }
-    }
+
 }

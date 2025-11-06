@@ -2,12 +2,12 @@ package com.example.appserata;
 
 import java.util.List;
 
-public class ruotaBonusCrazyTime {
+public class RuotaBonusCrazyTime {
 
     private final List<SegmentoRuota> ruotaBonus;
     private final int pesoTotaleBonus;
 
-    public ruotaBonusCrazyTime() {
+    public RuotaBonusCrazyTime() {
         this.ruotaBonus = List.of(
                 new SegmentoRuota("10x", 10, 15, false),
                 new SegmentoRuota("25x", 25, 10, false),

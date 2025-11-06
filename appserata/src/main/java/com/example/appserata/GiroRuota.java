@@ -1,13 +1,13 @@
 package com.example.appserata;
 
-public class giroRuota {
+public class GiroRuota {
 
     private final String nome;
     private final int moltiplicatore;
     private final int pesoProbabilistico;
     private final boolean isBonus;
 
-    public giroRuota(String nome, int moltiplicatore, int pesoProbabilistico, boolean isBonus) {
+    public GiroRuota(String nome, int moltiplicatore, int pesoProbabilistico, boolean isBonus) {
         this.nome = nome;
         this.moltiplicatore = moltiplicatore;
         this.pesoProbabilistico = pesoProbabilistico;

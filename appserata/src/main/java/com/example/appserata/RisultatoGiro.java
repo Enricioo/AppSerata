@@ -1,13 +1,13 @@
 package com.example.appserata;
 
-public class risultatoGiro {
+public class RisultatoGiro {
 
     private final String messaggio; // Es: "Vincitore: Cash Hunt!"
     private final String segmentoVincente;
     private final int moltiplicatoreFinale;
     private final boolean topSlotAttivato;
 
-    public risultatoGiro(String messaggio, String segmentoVincente, int moltiplicatoreFinale, boolean topSlotAttivato) {
+    public RisultatoGiro(String messaggio, String segmentoVincente, int moltiplicatoreFinale, boolean topSlotAttivato) {
         this.messaggio = messaggio;
         this.segmentoVincente = segmentoVincente;
         this.moltiplicatoreFinale = moltiplicatoreFinale;

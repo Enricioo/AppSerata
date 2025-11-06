@@ -13,12 +13,10 @@ public class SegmentoRuota {
     }
 
     public String getNome() {
-
         return nome;
     }
 
     public int getMoltiplicatore() {
-
         return moltiplicatore;
     }
 

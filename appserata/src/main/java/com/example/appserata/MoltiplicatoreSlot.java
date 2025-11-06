@@ -1,10 +1,10 @@
 package com.example.appserata;
 
-public class moltiplicatoreSlot {
+public class MoltiplicatoreSlot {
     private final int valore;
     private final int pesoProbabilistico;
 
-    public moltiplicatoreSlot(int valore, int pesoProbabilistico) {
+    public MoltiplicatoreSlot(int valore, int pesoProbabilistico) {
         this.valore = valore;
         this.pesoProbabilistico = pesoProbabilistico;
     }

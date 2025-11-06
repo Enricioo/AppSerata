@@ -1,7 +1,7 @@
 package com.example.appserata.controller;
 
-import com.example.appserata.risultatoGiro;
-import com.example.appserata.service.ruotaService;
+import com.example.appserata.RisultatoGiro;
+import com.example.appserata.service.RuotaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,22 +10,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/gioco")
-public class ruotaController {
+public class RuotaController {
 
-    private final ruotaService.ServizioGioco servizioGioco;
+    private final RuotaService ruotaService;
     private final SimpMessagingTemplate messagingTemplate; // Per inviare messaggi WebSocket
 
     @Autowired
-    public ruotaController(ruotaService.ServizioGioco servizioGioco, SimpMessagingTemplate messagingTemplate) {
-        this.servizioGioco = servizioGioco;
+    public RuotaController(RuotaService ruotaService, SimpMessagingTemplate messagingTemplate) {
+        this.ruotaService = ruotaService;
         this.messagingTemplate = messagingTemplate;
 
     }
 
     @GetMapping("/avvia-giro")
-    public risultatoGiro avviaGiro() {
+    public RisultatoGiro avviaGiro() {
         // 1. Esegui la logica di gioco
-        risultatoGiro risultato = servizioGioco.avviaGiro();
+        RisultatoGiro risultato = ruotaService.avviaGiro();
 
         // 2. Invia il risultato a tutti i client WebSocket connessi al topic '/topic/risultato'
         // I client remoti si iscriveranno a questo topic per ricevere il risultato in tempo reale.
