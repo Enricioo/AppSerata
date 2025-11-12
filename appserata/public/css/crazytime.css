@@ -1,0 +1,34 @@
+:root {
+    --rotation: 0deg;
+}
+
+body {
+    background-color: #1a1a2e; 
+}
+
+#wheel-container {
+    position: relative;
+    width: 1000px;
+    height: 1000px;
+    margin: 0px auto;
+}
+
+#crazy-time-wheel {
+    width: 100%;
+    height: 100%;
+    transition: transform 0s ease-out; 
+    transform: rotate(var(--rotation));
+}
+
+#pointer {
+    position: relative;
+    top: -100%;
+    right: -45%; 
+    transform: translate(50%, -50%);
+    transform: rotate(90deg);
+    width: 45px;
+    height: 45px;
+    background: #ffc107;
+    clip-path: polygon(100% 50%, 0% 0%, 0% 100%);
+    z-index: 10;
+}

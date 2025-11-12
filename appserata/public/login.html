@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Crazy Time - Login Squadra</title>
+        <link rel="stylesheet" href="css/login.css">
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    </head>
+
+    <body class="flex flex-col items-center justify-center min-h-screen p-4"> 
+        <header class="mb-8 w-full max-w-md text-center">
+            <h1 class="text-5xl font-black tracking-wider text-yellow-400">CRAZY TIME</h1>
+            <p class="text-xl text-gray-300 mt-2">Pagina di Accesso</p>
+        </header>
+
+        <div class="login-container bg-card p-8 rounded-xl shadow-2xl w-full max-w-sm"> 
+            <h2 class="text-2xl font-bold mb-2 text-center">ACCESSO SQUADRA</h2>
+            <p class="text-gray-400 mb-6 text-center text-sm">Inserisci le credenziali fornite per la tua squadra.</p>
+
+            <div id="login-form">
+                
+                <input type="text" id="squadra-input" placeholder="ID Squadra" required class="input-style w-full p-3 mb-3 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm"> 
+                <input type="password" id="password-input" placeholder="Password" required class="input-style w-full p-3 mb-5 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm"> 
+                <button class="login-button btn-primary w-full p-3 rounded-lg font-bold text-base" id="login-submit-button"> ACCEDI </button>
+                
+                <div id="login-error-message" class="text-red-500 mt-3 font-semibold text-xs text-center"></div>
+            </div>
+        </div>
+        <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+        <script src="js/firebase-init.js"></script>
+        <script src="js/login.js"></script>
+    </body>
+</html>

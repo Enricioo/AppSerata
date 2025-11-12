@@ -1,0 +1,23 @@
+body {
+    /* Sfondo scuro che richiama il tema del gioco */
+    background-color: #1a1a1a; 
+    color: white;
+    /* Forza l'altezza minima per una migliore esperienza mobile */
+    min-height: 100vh; 
+}
+.bg-card {
+    background-color: #333333; 
+}
+.btn-primary {
+    /* Giallo acceso del gioco */
+    background-color: #ffcc00; 
+    color: #1a1a1a;
+    transition: background-color 0.3s;
+}
+.btn-primary:hover {
+    background-color: #ffe066; 
+}
+.input-style {
+    background-color: #444444;
+    color: white;
+}

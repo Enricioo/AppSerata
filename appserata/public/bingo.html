@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo - Estrazione Numeri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/bingo.js"></script>
+    <script src="js/index.js"></script>
+    <link rel="stylesheet" href="css/bingo.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body class="bg-gray-900 min-h-screen p-12 bg-gradient-to-br from-black to-gray-900 text-gray-100 relative">
+
+    <div id="coin-field" class="absolute inset-0 z-0"></div>
+    
+    <header class="text-center mb-16 relative z-10">
+        <h1 class="text-7xl font-extrabold text-indigo-400">Tabellone Estrazione Casinò</h1>
+        <a href="index.html" class="text-gray-400 hover:text-indigo-400 mt-4 block text-3xl">← Torna al Menù Principale</a>
+    </header>
+
+    <main class="flex flex-col items-center relative z-10">
+        
+        <div class="mb-20 text-center">
+            <p class="text-4xl mb-6 font-semibold text-gray-300">Numero Estratto:</p>
+                
+            <div id="current-number-display" class="relative">
+                <div id="scrolling-container" style="transform: translateY(0);">
+                    <div id="number-placeholder" class="number-item">--</div>
+                </div>
+            </div>
+            
+            <p id="drawn-count" class="mt-8 text-3xl text-gray-400">Estratti: 0 / 90</p>
+        </div>
+
+        <button id="draw-button" 
+                class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-5 px-10 text-3xl rounded-lg 
+                       shadow-md transition duration-300 transform hover:scale-105 mb-16">
+            Estrai Prossimo Numero
+        </button>
+
+        <div id="bingo-board" 
+             class="bingo-board-container grid grid-cols-10 gap-4 p-8 bg-gray-800/80 rounded-xl shadow-lg 
+            border border-indigo-500/50 backdrop-blur-sm max-w-7xl mx-auto">
+            </div>
+    </main>
+    
+</body>

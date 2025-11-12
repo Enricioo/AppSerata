@@ -1,0 +1,38 @@
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    opacity: 0; 
+}
+
+.carousel-container {
+    overflow: hidden;
+    width: 100%;
+}
+
+.carousel-track {
+    display: flex;
+    /* Raddoppiamo il contenuto per creare un loop infinito senza interruzioni */
+    width: 20000px;
+    animation: scroll-left 70s linear infinite;
+    will-change: transform; /* Ottimizzazione performance */
+}
+
+.carousel-track:hover {
+    animation-play-state: paused; /* Metti in pausa al passaggio del mouse */
+}
+
+@keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-17600px); }
+}
+
+.user-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Lascia più spazio per il nome ora che la card è più larga */
+    max-width: 450px; 
+}
