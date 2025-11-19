@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controllo Host - Pachinko</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/pachinko.css">
+</head>
+<body>
+    <h1 id="statusText" class="text-4xl font-extrabold mb-4 text-[#ffd700] p-4 bg-gray-900 rounded-lg shadow-lg">
+        PACHINKO: In Attesa di Avvio
+    </h1>
+
+    <button id="dropButton" class="mb-6 bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition duration-150 shadow-md">
+    ▶️ CLICCA PER AVVIARE LA CADUTA
+    </button>
+    
+    <div id="dropPointsContainer" class="flex w-full max-w-lg mb-2">
+        </div>
+
+    <div id="pachinkoBoard">
+        </div>
+
+    <div id="multiplierSlots">
+        </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="../js/firebase-init.js"></script>
+    <script src="../js/pachinko.js"></script> 
+    
+    
+</body>
+</html>

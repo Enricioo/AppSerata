@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crazy Time - Scheda Puntate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/puntate.css">
+</head>
+<body class="bg-background-dark text-gray-100 p-4 flex justify-center min-h-screen">
+
+    <div id="game-container" class="w-full max-w-md bg-container-dark rounded-xl shadow-2xl p-6 relative">
+        
+        <h1 id="teamNameDisplay" class="font-pixel text-xl text-primary text-center mb-4">Caricamento...</h1>
+        
+        <div class="text-lg text-secondary text-center mb-6 border-b border-gray-600 pb-3">
+            Saldo: <span id="saldoDisplay" class="font-bold text-2xl ml-2">0</span>€
+        </div>
+        
+        <div id="statusDisplay" class="text-center font-bold text-lg p-3 rounded-lg bg-danger transition-colors duration-300">FASE PUNTATE: CHIUSA</div>
+        
+        <div id="bettingSection" class="mt-6 border-t border-gray-600 pt-6 hidden">
+            <h2 class="font-pixel text-lg text-primary text-center mb-4">Piazza la tua Puntata!</h2>
+            
+            <div class="flex justify-center items-center space-x-2 mb-6">
+                <button id="betMinus10" class="px-3 py-2 text-white font-bold rounded-lg shadow-md transition duration-150 transform bg-blue-500 hover:bg-blue-600">-10</button>
+                <button id="betMinus1" class="px-3 py-2 text-white font-bold rounded-lg shadow-md transition duration-150 transform bg-blue-500 hover:bg-blue-600">-1</button>
+                <input type="number" id="betAmountInput" min="1" value="10" class="bet-input w-24 p-2 rounded-lg text-2xl text-center bg-gray-700 border-2 border-gray-600 text-white focus:ring-primary focus:border-primary">
+                <button id="betPlus1" class="px-3 py-2 text-white font-bold rounded-lg shadow-md transition duration-150 transform bg-blue-500 hover:bg-blue-600">+1</button>
+                <button id="betPlus10" class="px-3 py-2 text-white font-bold rounded-lg shadow-md transition duration-150 transform bg-blue-500 hover:bg-blue-600">+10</button>
+            </div>
+            
+            <div class="space-y-6">
+                
+                <div>
+                    <h3 class="font-pixel text-base text-gray-400 mb-3 text-center">Numeri</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button class="segment-bet-btn btn-number p-4 text-xl font-bold rounded-lg shadow-xl text-white transition duration-150 transform hover:scale-[1.03] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-number-bet hover:bg-orange-600" data-segment="1">1</button>
+                        <button class="segment-bet-btn btn-number p-4 text-xl font-bold rounded-lg shadow-xl text-white transition duration-150 transform hover:scale-[1.03] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-number-bet hover:bg-orange-600" data-segment="2">2</button>
+                        <button class="segment-bet-btn btn-number p-4 text-xl font-bold rounded-lg shadow-xl text-white transition duration-150 transform hover:scale-[1.03] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-number-bet hover:bg-orange-600" data-segment="5">5</button>
+                        <button class="segment-bet-btn btn-number p-4 text-xl font-bold rounded-lg shadow-xl text-white transition duration-150 transform hover:scale-[1.03] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-number-bet hover:bg-orange-600" data-segment="10">10</button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-pixel text-base text-gray-400 mb-3 text-center">Giochi Bonus</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button class="segment-bet-btn btn-bonus p-4 text-xl font-bold rounded-lg shadow-xl text-white transition duration-150 transform hover:scale-[1.03] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-bonus-bet hover:bg-purple-700" data-segment="Pachinko">Pachinko</button>
+                        <button class="segment-bet-btn btn-bonus p-4 text-xl font-bold rounded-lg shadow-xl text-white transition duration-150 transform hover:scale-[1.03] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-bonus-bet hover:bg-purple-700" data-segment="Cash Hunt">Cash Hunt</button>
+                        <button class="segment-bet-btn btn-bonus p-4 text-xl font-bold rounded-lg shadow-xl text-white transition duration-150 transform hover:scale-[1.03] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-bonus-bet hover:bg-purple-700" data-segment="CoinFlip">CoinFlip</button>
+                        <button class="segment-bet-btn btn-bonus p-4 text-xl font-bold rounded-lg shadow-xl text-white transition duration-150 transform hover:scale-[1.03] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-bonus-bet hover:bg-purple-700" data-segment="Crazy Time">Crazy Time</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="activeBetsSection" class="mt-8 pt-6 border-t border-gray-600">
+            <h3 class="font-pixel text-base text-gray-400 text-center mb-4">Le tue Puntate Attive:</h3>
+            <ul id="activeBetsList" class="list-none p-0 space-y-2 text-center">
+                <li class="text-sm italic text-gray-500">Nessuna puntata piazzata.</li>
+            </ul>
+        </div>
+
+        <div id="messageArea" class="text-center mt-4 p-2 rounded-lg bg-red-800/30 text-danger font-bold text-sm"></div>
+        
+        <div id="errorOverlay" class="absolute inset-0 bg-background-dark/90 flex flex-col justify-center items-center text-xl text-danger font-pixel hidden">
+            <p>VERIFICA ID SQUADRA...</p>
+        </div>
+        
+    </div>
+
+    <div id="cashHuntSection" class="hidden w-full flex-grow flex flex-col items-center justify-center">
+            <p class="text-center text-gray-500">Attendere il caricamento del minigioco...</p>
+        </div>
+
+    
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script src="js/puntate.js"></script> 
+    <script src="js/puntatecustom.js"></script>
+    
+</body>
+</html>

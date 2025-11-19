@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Coin Flip Bonus Game</title>
+    <link href="../css/coinflip.css" rel="stylesheet"> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div id="game-container">
+        <h1 id="minigame-title">Minigioco: 🔴 Coin Flip 🔵</h1>
+
+        <div id="multiplier-display-area" class="flex justify-center items-start gap-5 mb-5">
+            
+            <div id="red-multiplier-display" class="multiplier-box red-side">
+                <span class="label">🔴 ROSSO</span>
+                <span class="value value-to-animate">X ?</span> 
+            </div>
+
+            <div id="blue-multiplier-display" class="multiplier-box blue-side">
+                <span class="label">🔵 BLU</span>
+                <span class="value value-to-animate">X ?</span>
+            </div>
+            
+        </div>
+        
+        <hr>
+
+        <div id="coin-3d" class="coin-face">
+            <div class="coin-side front"></div>
+            <div class="coin-side back"></div>
+        </div>
+
+        <p id="result-area" class="status-message">In attesa dei moltiplicatori...</p>
+        
+        <button id="flip-button" class="action-button">AVVIA ROUND COIN FLIP</button>
+        
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> 
+    <script src="../js/firebase-init.js"></script>
+    <script src="../js/coinflip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+</body>
+</html>

@@ -32,3 +32,10 @@ body {
     clip-path: polygon(100% 50%, 0% 0%, 0% 100%);
     z-index: 10;
 }
+
+#pixelTimerDisplay {
+    font-family: 'Press Start 2P', monospace; /* O un altro font pixel art */
+    font-size: 80px; /* Grande come nello screenshot */
+    color: #FF4136; /* Colore rosso acceso */
+    /* Altri stili per centrare, ecc. */
+}

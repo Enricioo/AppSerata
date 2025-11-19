@@ -7,6 +7,7 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
         <link rel="stylesheet" href="css/crazytime.css">
+        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     </head>
     <body class="p-20">
 
@@ -21,7 +22,12 @@
                 <div id="pointer"></div>
             </div>
 
-            <div class="mt-20 text-center">
+            <div id="game-status-display" class="mt-20 text-center">
+                <span id="current-status-message" class="text-4xl font-bold text-white mb-10">Timer:</span>
+                <span id="pixelTimerDisplay" class="text-4xl font-bold text-white mb-10"></span> 
+            </div>
+
+            <div class="mt-10 text-center">
                 <p id="current-result" class="text-6xl font-bold text-white mb-10">Risultato: --</p>
                 <button id="spin-button" 
                         class="bg-red-600 hover:bg-red-500 text-white font-bold py-6 px-16 text-4xl rounded-full 

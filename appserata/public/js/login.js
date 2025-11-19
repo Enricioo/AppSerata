@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // SE GIOCATORE: Usa l'UID di Firebase come ID Squadra
                     teamIdToSave = user.uid;
                     // Reindirizza alla pagina del gioco/puntata
-                    window.location.href = 'puntata.html';
+                    window.location.href = 'puntate.html';
                 }
                 
                 // Salva l'ID Admin/Giocatore

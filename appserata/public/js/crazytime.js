@@ -1,20 +1,24 @@
 const auth = firebase.auth();
 const functions = firebase.functions();
 const db = firebase.database();
-const BETTING_TIME_MS = 1000;
+const BETTING_TIME_MS = 5000;
 const gameStateRef = db.ref('GAME_STATE');
 
-const applicaRisultato = functions.httpsCallable('applicaRisultato');
 function startApplication() {
     document.addEventListener('DOMContentLoaded', () => {
         const spinButton = document.getElementById('spin-button');
         const wheel = document.getElementById('crazy-time-wheel');
         const resultDisplay = document.getElementById('current-result');
         const topslotDisplay = document.getElementById('topslot-result');
+        const statusMessage = document.getElementById('current-status-message');
+        const countdownBar = document.getElementById('countdown-bar');
+        const pixelTimerDisplay = document.getElementById('pixelTimerDisplay');
 
         let isSpinning = false;
         let topslotTarget = '';
         let topslotMultiplier = 1;
+
+        let currentRoundId = Date.now().toString();
 
         const segments = [
             'CrazyTime', '1', '2', '5', '1', '2', 'Pachinko', '1', '5', '1', 
@@ -26,18 +30,75 @@ function startApplication() {
         ];
 
         const multipliers = {
-            '1': 1, '2': 2, '5': 5, '10': 10, 
-            'CoinFlip': 2, 'CashHunt': 5, 'Pachinko': 10, 'CrazyTime': 20 
+            '1': 2, '2': 3, '5': 6, '10': 11, 
+            'CoinFlip': 1, 'CashHunt': 1, 'Pachinko': 1, 'CrazyTime': 1 
         };
+
+        function formatTime(totalSeconds) {
+            if (totalSeconds < 0) totalSeconds = 0;
+            
+            // Calcola minuti e secondi
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            // Aggiunge lo zero iniziale se il numero è inferiore a 10
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(seconds).padStart(2, '0');
+            
+            return `${formattedMinutes}:${formattedSeconds}`;
+        }
+
+        function processRoundResult(segmentoVincente, moltiplicatoreFinale, roundId) {
+            
+            // 2. Prepara l'oggetto risultato
+            const risultatoDaScrivere = {
+                roundId: roundId,
+                segment: segmentoVincente,
+                finalMultiplier: moltiplicatoreFinale
+            };
+
+            // 3. ESEGUI LA SCRITTURA ATOMICA DEL RISULTATO (Soluzione al problema del listener)
+            db.ref('RISULTATO_ULTIMO_GIRO').set(risultatoDaScrivere)
+                .then(() => {
+                    console.log(`Risultato ${segmentoVincente} scritto correttamente con ID: ${roundId}`);
+                    
+                    // 4. Aggiorna lo stato del gioco per aprire le puntate
+                    return db.ref('GAME_STATE/status').set('WAITING_FOR_SPIN');
+                })
+                .then(() => {
+                    console.log("[FIREBASE] Stato settato su WAITING_FOR_SPIN. Puntate NON aperte.");
+                })
+                .catch(error => {
+                    console.error("Errore critico durante la chiusura del giro:", error);
+                });
+        }
 
         const segmentAngle = 360 / segments.length; // 6.666 gradi per segmento
 
+        async function registerTopSlotResult(event, multiplier) {
+            if (typeof db === 'undefined' || typeof firebase === 'undefined' || !firebase.database.ServerValue) {
+                console.error("Firebase db o ServerValue non disponibili per registrare Top Slot.");
+                return;
+            }
+
+            try {
+                await db.ref('LAST_TOPSLOT_RESULT').set({
+                    event: event,       // Es: 'PACHINKO', 'COINFLIP'
+                    multiplier: multiplier, // Es: 2, 5, 10
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                console.log(`Risultato Top Slot registrato: ${event} ${multiplier}x`);
+            } catch (error) {
+                console.error("Errore registrazione Top Slot:", error);
+            }
+        }
+
         // Funzione per gestire il Top Slot
         function spinTopSlot() {
-            return new Promise(resolve => {
+            return new Promise(async resolve => {
                 topslotDisplay.textContent = 'Top Slot: Girando...';
                 
-                // 1. Scegli un Moltiplicatore Casuale
+                // Scegli un Moltiplicatore Casuale
                 const possibleMultipliers = [2, 3, 4, 5, 7, 10, 20, 30, 40, 50, 100];
                 const chosenMultiplier = possibleMultipliers[Math.floor(Math.random() * possibleMultipliers.length)];
                 const bettableSegments = ['1', '2', '5', '10', 'CoinFlip', 'CashHunt', 'Pachinko', 'CrazyTime'];
@@ -60,12 +121,14 @@ function startApplication() {
                     loop: 10, 
                     easing: 'linear',
 
-                    complete: () => {
+                    complete: async () => {
                     
                         // Assegna i valori globali
                         topslotTarget = chosenTarget;
                         topslotMultiplier = chosenMultiplier;
                         
+                        await registerTopSlotResult(topslotTarget, topslotMultiplier);
+
                         topslotDisplay.textContent = finalMessage;
                         anime({
                             targets: topslotDisplay,
@@ -79,80 +142,64 @@ function startApplication() {
         }
 
         function spinMainWheel() {
-            console.log("3. Funzione spinMainWheel avviata.");
-            const chosenSegmentIndex = Math.floor(Math.random() * segments.length);
-            const winningTarget = segments[chosenSegmentIndex];
-            // Calcola l'angolo di arrivo
-            let targetAngle = (chosenSegmentIndex * segmentAngle) + (segmentAngle / 2);
-            const fullRotations = 5; 
-            const finalAngle = (fullRotations * 360) + targetAngle;
-            
-            console.log(`[DEBUG] Moltiplicatore Top Slot: ${topslotMultiplier}`);
-            // Avvia la rotazione
-            anime({
-                targets: wheel,
-                rotate: [0, -finalAngle], 
-                duration: 5000, 
-                easing: 'easeOutQuart',
+            return new Promise((resolve, reject) => {
+                console.log("3. Funzione spinMainWheel avviata.");
+                const chosenSegmentIndex = Math.floor(Math.random() * segments.length);
+                const winningTarget = "Pachinko"// segments[chosenSegmentIndex];
+                // Calcola l'angolo di arrivo
+                let targetAngle = (chosenSegmentIndex * segmentAngle) + (segmentAngle / 2);
+                const fullRotations = 5; 
+                const finalAngle = (fullRotations * 360) + targetAngle;
                 
-                complete: async function() {
-                    isSpinning = false;
-                    spinButton.disabled = false;
-
-                    // Calcola la vincita
-                    let finalMultiplier = multipliers[winningTarget] || 1;
-
-                    if (winningTarget === topslotTarget) {
-                        finalMultiplier *= topslotMultiplier;
-                    }
-
-                    resultDisplay.textContent = `Risultato: ${winningTarget}`;
-
-                    try {
-                        // IMPOSTA LO STATO DEI RISULTATI prima di chiamare la CF
-                        await gameStateRef.update({
-                            status: 'SPIN_RESULT',
-                            vincitore: winningTarget, // Opzionale, ma utile per i giocatori
-                            moltiplicatore: finalMultiplier
-                        });
-                        
-                        // CHIAMATA AL BACKEND PER IL PAYOUT GENERALE
-                        await applicaRisultato({
-                            segmentoVincente: winningTarget,
-                            moltiplicatoreFinale: finalMultiplier,
-                        });      
-                        
-                        resultDisplay.textContent = `Risultato: ${winningTarget} x${finalMultiplier}! Payout completato.`;
-
-                        // 5. Reset: dopo 5 secondi, riabilita il pulsante "Gira" e resetta lo stato
-                        setTimeout(() => {
-                            spinButton.disabled = false;
-                            gameStateRef.update({ status: 'READY_TO_SPIN' });
-                            topslotTarget = '';
-                            topslotMultiplier = 1;
-                            resultDisplay.textContent = 'Pronto per il prossimo giro.';
-                        }, 5000); // Dai tempo ai giocatori di vedere il risultato
-                        
-                    } catch (error) {
-                        resultDisplay.textContent = `ERRORE Payout: ${error.message}`;
-                        // ...
-                    }
-
-                    topslotDisplay.textContent = `Top Slot: ${topslotTarget} X${topslotMultiplier}`;
+                console.log(`[DEBUG] Moltiplicatore Top Slot: ${topslotMultiplier}`);
+                // Avvia la rotazione
+                anime({
+                    targets: wheel,
+                    rotate: [0, -finalAngle], 
+                    duration: 5000, 
+                    easing: 'easeOutQuart',
                     
-                    topslotTarget = '';
-                    topslotMultiplier = 1;
-                }
+                    complete: function() {
+                        isSpinning = false;
+                        spinButton.disabled = false;
+                        const BONUS_GAMES = ['CoinFlip', 'CashHunt', 'Pachinko', 'CrazyTime'];
+                        const isBonusGame = BONUS_GAMES.includes(winningTarget);
+
+                        if (isBonusGame) {
+                            
+                            startBonusGame(winningTarget);
+                            return; // Interrompe l'esecuzione del resto del blocco
+                        }
+
+                        // Calcola la vincita
+                        let finalMultiplier = multipliers[winningTarget] || 1;
+
+                        if (winningTarget === topslotTarget) {
+                            finalMultiplier += topslotMultiplier;
+                        }
+
+                        resultDisplay.textContent = `Risultato: ${winningTarget}`;
+                        console.log("Segmento Vincente inviato:", winningTarget);
+                        console.log("Moltiplicatore inviato:", finalMultiplier);
+
+                        resolve({ 
+                            segmentoVincente: winningTarget, 
+                            moltiplicatoreFinale: Number(finalMultiplier)                     
+                            });
+                        
+                    }
+                });
+                topslotDisplay.textContent = `Top Slot: ${topslotTarget} X${topslotMultiplier}`;
             });
-            
         }
 
         async function spinWheel() {
             
             if (isSpinning) return;
             isSpinning = true;
+            resultDisplay.textContent = 'Invia le puntate ORA!';
 
-            resultDisplay.textContent = 'FASE PUNTATE: APERTA (30s)...';
+            currentRoundId = Date.now().toString();
 
             await gameStateRef.update({
                 status: 'BETTING_OPEN',
@@ -160,9 +207,59 @@ function startApplication() {
                 duration: BETTING_TIME_MS 
             });
 
+            let timeLeft = BETTING_TIME_MS / 1000;
+
+            const timerInterval = setInterval(() => {
+                pixelTimerDisplay.textContent = formatTime(timeLeft);
+                timeLeft--;
+
+                if (timeLeft >= 0) {
+
+                    const newTimeText = formatTime(timeLeft);
+                    statusMessage.textContent = '';
+                    
+                    // Animazione: Scala (scalabilità) per un effetto "pulsante"
+                    anime({
+                        targets: pixelTimerDisplay,
+                        translateY: ['0%', '100%'], // Sposta in basso
+                        opacity: [1, 1],
+                        easing: 'easeInQuad',
+                        duration: 150,
+                        
+                        complete: () => {
+                            // Aggiorna il testo quando è nascosto
+                            pixelTimerDisplay.textContent = newTimeText;
+
+                            // Riporta il numero appena aggiornato nella posizione originale
+                            anime({
+                                targets: pixelTimerDisplay,
+                                translateY: ['-100%', '0%'], // Torna dall'alto
+                                opacity: [1, 1],            // Appare
+                                easing: 'easeOutQuad',
+                                duration: 150, // Breve durata per l'effetto di entrata
+                            });
+                        }
+                    });
+                    anime({
+                        targets: pixelTimerDisplay,
+                        color: [timeLeft <= 10 ? '#FF4136' : '#FFFFFF', '#FFFFFF'], 
+                        duration: 500,
+                        easing: 'easeInOutSine'
+                    });
+
+                } else {
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+
             await new Promise(resolve => setTimeout(resolve, BETTING_TIME_MS));
 
-            resultDisplay.textContent = 'FASE PUNTATE: CHIUSA. In attesa risultato...';
+            clearInterval(timerInterval);
+            anime.set(countdownBar, {
+                scaleX: 1, 
+            });
+
+            resultDisplay.textContent = 'FASE PUNTATE: CHIUSA.';
 
             await gameStateRef.update({
                 status: 'BETTING_CLOSED'
@@ -174,24 +271,40 @@ function startApplication() {
             console.log(`2. Top Slot risolto. Moltiplicatore: ${topslotMultiplier}. Avvio Ruota...`);
 
             // Gira la Ruota Principale con il moltiplicatore ricevuto
-            spinMainWheel();
+            const risultatiGiro = await spinMainWheel();
+            const { segmentoVincente, moltiplicatoreFinale } = risultatiGiro;
+            console.log(`[DEBUG] Moltiplicatore che registro nel DB: ${moltiplicatoreFinale}`);
+            try {
+
+                processRoundResult(segmentoVincente, moltiplicatoreFinale, currentRoundId);
+
+                topslotTarget = '';
+                topslotMultiplier = 1;
+        
+                console.log(`Risultato inviato: ${segmentoVincente}. Moltiplicatore: ${moltiplicatoreFinale}x`);
+
+            } catch (error) {
+                console.error("Errore durante l'elaborazione del giro:", error);
+            }
         }
         
         spinButton.addEventListener('click', spinWheel);
+
+        async function startBonusGame(gameName) {
+            console.log(`Avvio minigioco: ${gameName}`);
+
+            const roundId = currentRoundId
+            
+            // Aggiorna lo stato del gioco su Firebase
+            db.ref('GAME_STATE').update({
+                status: 'BONUS_GAME',
+                activeBonus: gameName,
+                currentRoundId: roundId
+            });
+            window.location.href = `bonus/${gameName.toLowerCase()}.html`;
+        }
+
     });
 }
 
 startApplication();
-/* auth.onAuthStateChanged((user) => {
-    const gameTeamIdFromStorage = localStorage.getItem('gameTeamId');
-if (user && gameTeamIdFromStorage === 'ADMIN_CONTROL_PANEL') {   
-        // Utente Admin loggato: avvia la funzione di controllo
-        console.log("Accesso Admin riuscito. Avvio Pagina Admin.");
-        
-     } else {
-         // Utente non loggato: reindirizza al login
-         if (window.location.pathname !== '/login.html' && window.location.pathname !== '/login') {
-             window.location.href = 'login.html'; 
-         }
-     }
-}); */

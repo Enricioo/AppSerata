@@ -10,6 +10,7 @@
 const { setGlobalOptions } = require("firebase-functions");
 const { onCall } = require("firebase-functions/https");
 const admin = require('firebase-admin');
+const functions = require('firebase-functions');
 
 setGlobalOptions({ maxInstances: 10 });
 
@@ -81,13 +82,7 @@ exports.piazzascommessa = onCall(async (data, context) => {
 
 // Funzione per l'host del gioco per avviare il giro
 exports.giraRuota = onCall(async (data, context) => {
-    // 1. Controlla che il giro non sia già in corso o che ci sia un solo "host" ad attivare
-    // (Per semplicità, saltiamo la logica di autenticazione dell'host per ora)
 
-    // 2. Esegui il tuo RNG ponderato
-    // **********************************************
-    // QUI DEVI INSERIRE LA TUA LOGICA JS ESISTENTE
-    // Esempio:
     const topslotOutcome = calcolaTopSlot();
     const wheelOutcome = calcolaRisultatoRuota(segments); // Usa la funzione creata
 
@@ -102,22 +97,19 @@ exports.giraRuota = onCall(async (data, context) => {
     moltiplicatore = moltiplicatore * topslotMultiplier;
     messaggioTopSlot = ` *BONUS!* Top Slot X${topslotMultiplier} applicato!`;
 }
-    // **********************************************
-    
-    // PER ORA, USIAMO UN RISULTATO FITTIZIO PER TESTARE IL FLOW
     const numeroGiro = await db.ref('GIOCO_STATO/turnoCorrente').once('value').then(snap => snap.val() || 1);
 
-    // Aggiorna lo stato nel DB prima del calcolo (Ruota in Animazione)
+    // Aggiorna lo stato nel DB prima del calcolo
     await db.ref('GIOCO_STATO').update({
         fase: 'IN_GIRO',
         timer: 0
     });
 
-    // 3. Recupera tutte le puntate per questo giro
+    // Recupera tutte le puntate per questo giro
     const puntateSnap = await db.ref('PUNTATE_ATTUALI').once('value');
     const puntate = puntateSnap.val() || {};
 
-    // 4. Calcolo dei Payout
+    // Calcolo dei Payout
     const aggiornamentiSaldo = {}; // Contiene i saldi finali di tutte le squadre
 
     for (const puntataId in puntate) {
@@ -143,7 +135,7 @@ exports.giraRuota = onCall(async (data, context) => {
         aggiornamentiSaldo[teamId] += importoVinto;
     }
 
-    // 5. Applica gli aggiornamenti di Saldo al Database
+    // Applica gli aggiornamenti di Saldo al Database
     const saldiDaAggiornare = {};
     for (const teamId in aggiornamentiSaldo) {
         saldiDaAggiornare[`SQUADRE/${teamId}/saldo`] = aggiornamentiSaldo[teamId];
@@ -153,7 +145,7 @@ exports.giraRuota = onCall(async (data, context) => {
     await db.ref('/').update(saldiDaAggiornare);
 
 
-    // 6. Aggiorna il Risultato e lo Stato di Gioco (tutti i client si aggiorneranno)
+    // Aggiorna il Risultato e lo Stato di Gioco (tutti i client si aggiorneranno)
     await db.ref('RISULTATO_ULTIMO_GIRO').set({
         numeroGiro: numeroGiro,
         segmentoVincente: segmentoVincente,
@@ -176,31 +168,58 @@ exports.giraRuota = onCall(async (data, context) => {
     return { message: `Giro ${numeroGiro} completato. Vincitore: ${segmentoVincente} x${moltiplicatore}. Payout eseguiti.` };
 });
 
-function spinTopSlot() {
-    // Logica per scegliere un Moltiplicatore Casuale
-    const possibleMultipliers = [2, 3, 4, 5, 7, 10, 20, 30, 40, 50, 100];
-    const chosenMultiplier = possibleMultipliers[Math.floor(Math.random() * possibleMultipliers.length)];
+exports.applicaRisultato = functions.https.onCall(async (data, context) => {
     
-    // Logica per scegliere un Target Casuale
-    const bettableSegments = ['1', '2', '5', '10', 'CoinFlip', 'CashHunt', 'Pachinko', 'CrazyTime'];
-    const chosenTarget = bettableSegments[Math.floor(Math.random() * bettableSegments.length)];
+    const { segmentoVincente, moltiplicatoreFinale } = data;
+    const moltiplicatore = Number(moltiplicatoreFinale);
+
+    if (!data || Object.keys(data).length === 0) {
+        throw new functions.https.HttpsError('invalid-argument', 'Nessun dato inviato.');
+    }
+
+    if (!segmentoVincente || segmentoVincente === "" || isNaN(moltiplicatore) || moltiplicatore < 1) { 
+        // Se non c'è segmento VINCENTE, o se il moltiplicatore non è un numero valido o è 0/negativo
+        console.error("Dati mancanti o invalidi:", {segmentoVincente, moltiplicatore});
+        throw new functions.https.HttpsError('invalid-argument', 'Dati del risultato non validi');
+    }
+
     
-    return { 
-        target: chosenTarget, 
-        multiplier: chosenMultiplier 
-    };
-}
+    const squadreRef = db.ref('SQUADRE');
 
-function spinMainWheel(segments) {
-    // NOTA: Il tuo codice usa Math.random() che è un buon RNG per il party.
-    const chosenSegmentIndex = Math.floor(Math.random() * segments.length);
-    const chosenResult = segments[chosenSegmentIndex];
+    // Legge tutte le squadre e le loro puntate
+    const snapshot = await squadreRef.once('value');
+    const squadre = snapshot.val();
 
-    return {
-        segmentoVincente: chosenResult,
-        indice: chosenSegmentIndex
-    };
-}
+    if (!squadre) {
+        return { message: 'Nessuna squadra trovata o puntate attive, payout saltato.' };
+    }
+
+    const aggiornamentiDB = {};
+
+    // Itera su tutte le squadre per calcolare il payout e preparare il reset
+    for (const teamId in squadre) {
+        const squadra = squadre[teamId];
+        const puntateAttive = squadra.puntateAttive || {};
+        let vincitaTotale = 0;
+
+        // Calcola la vincita
+        if (puntateAttive[segmentoVincente]) {
+            const puntataVincente = puntateAttive[segmentoVincente];
+            vincitaTotale = puntataVincente * moltiplicatoreFinale;
+        }
+
+        // Prepara l'aggiornamento
+        const nuovoSaldo = (squadra.saldo || 0) + vincitaTotale;
+        
+        aggiornamentiDB[`/SQUADRE/${teamId}/saldo`] = nuovoSaldo;
+        aggiornamentiDB[`/SQUADRE/${teamId}/puntateAttive`] = null; // Resetta le puntate attive
+    }
+    
+    // Aggiornamento
+    await db.ref('/').update(aggiornamentiDB);
+
+    return ({ message: 'Payout completato con successo.' });
+});
 
 
 

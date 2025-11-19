@@ -1,0 +1,165 @@
+body {
+    background-color: #0d0d0d;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    padding-bottom: 80px;
+}
+
+#dropButton:disabled {
+    background-color: #4a5568;
+    cursor: not-allowed;
+}
+
+#pachinkoBoard {
+    width: 80vw;
+    max-width: 613px;
+    height: 800px;
+    background-color: #8B008B;
+    border: 3px solid #ffd700; 
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+    position: relative;
+}
+
+/* Perno (simulazione dei chiodi) */
+.peg {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+}
+
+/* === PUNTI DI CADUTA (DROP POINTS) === */
+
+#dropPointsContainer {
+    width: 80vw;
+    max-width: 600px; 
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px; 
+}
+
+.drop-point {
+    flex-grow: 1;
+    height: 30px;
+    background-color: #333; 
+    border: 1px solid #555;
+    margin: 0 1px;
+    transition: box-shadow 0.1s, background-color 0.1s;
+}
+
+/* === PALLINA (CORRETTO per VISIBILITÀ) === */
+
+.ball {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background-color: #ff0000; /* Rosso brillante */
+    border-radius: 50%;
+    border: 2px solid #ffffff; /* Bordo bianco per farla risaltare */
+    transform: translateX(-50%);
+    z-index: 100; /* Livello massimo per la visibilità */
+    
+    /* Controlliamo l'animazione solo via JS */
+    animation: none; 
+    transition: left 0.5s; 
+}
+
+@keyframes drop {
+    0% { top: 0px; opacity: 1; }
+    /* Aggiungiamo stop intermedi per simulare l'effetto di "rallentamento/rimbalzo" */
+    10% { top: 10%; animation-timing-function: cubic-bezier(0.4, 0.0, 0.6, 1.0); } /* Collisione 1 */
+    35% { top: 35%; animation-timing-function: cubic-bezier(0.4, 0.0, 0.6, 1.0); } /* Collisione 2 */
+    60% { top: 60%; animation-timing-function: cubic-bezier(0.4, 0.0, 0.6, 1.0); } /* Collisione 3 */
+    85% { top: 85%; animation-timing-function: cubic-bezier(0.4, 0.0, 0.6, 1.0); } /* Collisione 4 */
+    /* Posizione finale */
+    100% { top: calc(100% - 25px); opacity: 1; } 
+}
+
+.ball.dropping {
+    /* Applica l'animazione di caduta */
+    animation: drop 3s linear forwards; /* 3 secondi per l'animazione di caduta */
+}
+
+#multiplierSlots {
+    width: 614px; /* Assumi BOARD_WIDTH = 600 */
+    height: 100px; /* Altezza fissa per gli slot */
+    
+    display: flex;
+    justify-content: space-around; /* Distribuisce uniformemente gli slot */
+    align-items: flex-start;
+    padding: 0;
+    margin: 0;
+    margin-left: -2px;
+    position: relative;
+    perspective: 1000px;
+}
+
+.slot {
+    /* Impostazioni di base dello slot */
+    width: calc(100% / 16); 
+    height: 90px; 
+    
+    /* Per vedere dove finisce lo slot */
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    box-sizing: border-box; 
+    text-align: center;
+    display: flex;
+    justify-content: center; /* Centra il contenuto (il tag <span>) */
+    align-items: center;     
+    color: white;
+    font-size: 1.2em;
+    font-weight: bold;
+    background-color: transparent;
+    transform-style: preserve-3d; /* Permette la rotazione 3D */
+    transition: transform 0.4s ease-in-out;
+    
+    /* Importante per permettere al testo ruotato di stare all'interno */
+    overflow: hidden;
+}
+
+.vertical-text-all {
+    position: absolute;
+    /* Ruota il testo */
+    transform: rotate(-90deg);
+    /* Serve per aggiustare l'origine della rotazione e centrare */
+    white-space: nowrap; /* Impedisce al testo di andare a capo */
+    font-size: 0.8em; /* Riduci leggermente la dimensione se necessario */
+    padding: 0;
+    margin: 0;
+    transition: none;
+    margin-right: -2px;
+}
+
+@keyframes flipOut {
+    0% { transform: rotateX(0deg); opacity: 1; }
+    100% { transform: rotateX(90deg); opacity: 0; }
+}
+
+@keyframes flipIn {
+    0% { transform: rotateX(-90deg); opacity: 0; }
+    100% { transform: rotateX(0deg); opacity: 1; }
+}
+
+/* Fase di uscita: il moltiplicatore esistente ruota e scompare */
+.slot.flip-out {
+    animation: flipOut 0.4s forwards;
+}
+
+/* Fase di entrata: il nuovo moltiplicatore ruota e appare */
+.slot.flip-in {
+    /* Nota: Usiamo un delay per ogni elemento per un effetto "a cascata" */
+    animation: flipIn 0.6s forwards;
+    /* Inizialmente, ruota i nuovi valori per farli apparire solo dopo il flip */
+}
+
+.vertical-text-all.double-animation {
+    color: #ff0000; 
+    animation: double-shake 2.2s ease-in-out forwards;
+}
