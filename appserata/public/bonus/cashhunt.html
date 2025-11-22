@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Cash Hunt Minigioco</title>
+    <style>
+        body { font-family: sans-serif; background-color: #2c3e50; color: white; padding: 20px; }
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr); /* 12 colonne * 9 righe = 108 */
+            gap: 5px;
+            max-width: 900px;
+            margin: 20px auto;
+        }
+        .cashhunt-target {
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+            font-size: 14px;
+        }
+        .bg-red-500 { background-color: #ef4444; }
+        .bg-yellow-500 { background-color: #f59e0b; }
+        .bg-blue-800 { background-color: #1e40af; }
+        .bg-gray-600 { background-color: #4b5563; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="firebase-config.js"></script> </head>
+<body>
+    <h1>🎯 Cash Hunt Minigioco Attivo</h1>
+    <h2 id="timer-display" class="text-3xl font-bold mt-2">In attesa...</h2>
+    <p id="status-display" class="text-xl mt-2">Preparazione del tabellone...</p>
+
+    <div id="game-board">
+        </div>
+
+    <div id="results-container" class="mt-6 p-4 bg-gray-700 rounded">
+        <h3>Risultati Scelte:</h3>
+        </div>
+
+    <button id="end-round-btn" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded mt-4" disabled>
+        Attendi i risultati...
+    </button>
+    
+    <script src="cashhunt_game.js"></script>
+</body>
+</html>

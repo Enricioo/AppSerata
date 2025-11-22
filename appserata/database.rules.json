@@ -1,6 +1,35 @@
 {
   "rules": {
-    ".read": false,
-    ".write": false
+    ".read": "auth != null",
+    
+    "GAME_STATE": {
+      ".write": "auth != null" 
+    },
+    
+    "RISULTATO_ULTIMO_GIRO": {
+      ".write": "auth != null"
+    },
+    
+    "SQUADRE": {
+      "$teamId": {
+        ".read": "auth != null",
+        ".write": "auth.uid === $teamId" 
+      }
+    },
+    
+    "PUNTATE_ATTUALI": {
+        ".write": "auth != null", 
+        ".read": "auth != null"
+    },
+    
+    "LAST_TOPSLOT_RESULT": {
+        ".write": "auth != null", 
+        ".read": "auth != null"
+    },
+    
+    "HISTORY": {
+        ".write": "auth != null", 
+        ".read": "auth != null"
+    }
   }
 }

@@ -125,17 +125,16 @@ document.addEventListener('DOMContentLoaded', () => {
         "Andrea B.",     // Giocatore 10
         "Miriam F.",   // Giocatore 11
         "Giammarco P.",      // Giocatore 12
-        "Gabriella M.",      // Giocatore 13
+        "Gabriele V.",      // Giocatore 13
         "Debora S.",     // Giocatore 14
         "Federico C.",      // Giocatore 15
         "Stefano C.C.",     // Giocatore 16
         "Alessandro M.",     // Giocatore 17
-        "Gaetano R.",  // Giocatore 18
+        "Steven C.",  // Giocatore 18
         "Nicola R.",    // Giocatore 19
         "Samuele L.",     // Giocatore 20
         "Francesco I.",  // Giocatore 21
-        "Giosuè C.C.",   // Giocatore 22
-        "Noemi S.",   // Giocatore 23
+        "Azzurra C.",   // Giocatore 22
     ];
 
         const imagePaths = [
@@ -151,17 +150,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 'assets/partecipanti/Andrea.jpg',
                 'assets/partecipanti/Miriam.jpg',
                 'assets/partecipanti/Giammarco.jpg',
-                'assets/partecipanti/Gabriella.jpg',
+                'assets/partecipanti/Gigino.jpg',
                 'assets/partecipanti/Debora.jpg',
                 'assets/partecipanti/Federico.jpg',
                 'assets/partecipanti/Stefano.jpg',
                 'assets/partecipanti/Alessandro.jpg',
-                'assets/partecipanti/Gaetano.jpg',
+                'assets/partecipanti/Steven.jpg',
                 'assets/partecipanti/Nicola.jpg',
                 'assets/partecipanti/Samuele.jpg',
                 'assets/partecipanti/Francesco.jpg',
-                'assets/partecipanti/Giosuè.jpg',
-                'assets/partecipanti/Noemi.jpg'
         ];
 
         if (!cardTemplate) {

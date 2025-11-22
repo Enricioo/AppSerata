@@ -1,7 +1,7 @@
 const auth = firebase.auth();
 const functions = firebase.functions();
 const db = firebase.database();
-const BETTING_TIME_MS = 5000;
+const BETTING_TIME_MS = 20000;
 const gameStateRef = db.ref('GAME_STATE');
 
 function startApplication() {
@@ -145,7 +145,7 @@ function startApplication() {
             return new Promise((resolve, reject) => {
                 console.log("3. Funzione spinMainWheel avviata.");
                 const chosenSegmentIndex = Math.floor(Math.random() * segments.length);
-                const winningTarget = "Pachinko"// segments[chosenSegmentIndex];
+                const winningTarget = segments[chosenSegmentIndex];
                 // Calcola l'angolo di arrivo
                 let targetAngle = (chosenSegmentIndex * segmentAngle) + (segmentAngle / 2);
                 const fullRotations = 5; 
